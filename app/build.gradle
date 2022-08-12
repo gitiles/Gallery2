@@ -3,12 +3,12 @@ plugins {
 }
 
 android {
-    compileSdkVersion 31
+    compileSdkVersion rootProject.ext.compileSdkVersion
 
     defaultConfig {
         applicationId "com.androidx.gallery3d"
-        minSdkVersion 24
-        targetSdkVersion 30
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 40030
         versionName "1.1.40030"
 
