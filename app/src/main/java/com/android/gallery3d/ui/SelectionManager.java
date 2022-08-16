@@ -39,7 +39,6 @@ public class SelectionManager {
     private SelectionListener mListener;
     private DataManager mDataManager;
     private boolean mInverseSelection;
-    private boolean mIsAlbumSet;
     private boolean mInSelectionMode;
     private boolean mAutoLeave = true;
     private int mTotal;
@@ -49,10 +48,9 @@ public class SelectionManager {
         public void onSelectionChange(Path path, boolean selected);
     }
 
-    public SelectionManager(AbstractGalleryActivity activity, boolean isAlbumSet) {
+    public SelectionManager(AbstractGalleryActivity activity) {
         mDataManager = activity.getDataManager();
         mClickedSet = new HashSet<Path>();
-        mIsAlbumSet = isAlbumSet;
         mTotal = -1;
     }
 
@@ -112,9 +110,7 @@ public class SelectionManager {
         if (mSourceMediaSet == null) return -1;
 
         if (mTotal < 0) {
-            mTotal = mIsAlbumSet
-                    ? mSourceMediaSet.getSubMediaSetCount()
-                    : mSourceMediaSet.getMediaItemCount();
+            mTotal = mSourceMediaSet.getMediaItemCount();
         }
         return mTotal;
     }
@@ -147,98 +143,34 @@ public class SelectionManager {
         }
     }
 
-    private static boolean expandMediaSet(ArrayList<Path> items, MediaSet set, int maxSelection) {
-        int subCount = set.getSubMediaSetCount();
-        for (int i = 0; i < subCount; i++) {
-            if (!expandMediaSet(items, set.getSubMediaSet(i), maxSelection)) {
-                return false;
-            }
-        }
-        int total = set.getMediaItemCount();
-        int batch = 50;
-        int index = 0;
-
-        while (index < total) {
-            int count = index + batch < total
-                    ? batch
-                    : total - index;
-            ArrayList<MediaItem> list = set.getMediaItem(index, count);
-            if (list != null
-                    && list.size() > (maxSelection - items.size())) {
-                return false;
-            }
-            for (MediaItem item : list) {
-                items.add(item.getPath());
-            }
-            index += batch;
-        }
-        return true;
-    }
-
     public ArrayList<Path> getSelected(boolean expandSet) {
         return getSelected(expandSet, Integer.MAX_VALUE);
     }
 
     public ArrayList<Path> getSelected(boolean expandSet, int maxSelection) {
         ArrayList<Path> selected = new ArrayList<Path>();
-        if (mIsAlbumSet) {
-            if (mInverseSelection) {
-                int total = getTotalCount();
-                for (int i = 0; i < total; i++) {
-                    MediaSet set = mSourceMediaSet.getSubMediaSet(i);
-                    Path id = set.getPath();
+        if (mInverseSelection) {
+            int total = getTotalCount();
+            int index = 0;
+            while (index < total) {
+                int count = Math.min(total - index, MediaSet.MEDIAITEM_BATCH_FETCH_COUNT);
+                ArrayList<MediaItem> list = mSourceMediaSet.getMediaItem(index, count);
+                for (MediaItem item : list) {
+                    Path id = item.getPath();
                     if (!mClickedSet.contains(id)) {
-                        if (expandSet) {
-                            if (!expandMediaSet(selected, set, maxSelection)) {
-                                return null;
-                            }
-                        } else {
-                            selected.add(id);
-                            if (selected.size() > maxSelection) {
-                                return null;
-                            }
-                        }
-                    }
-                }
-            } else {
-                for (Path id : mClickedSet) {
-                    if (expandSet) {
-                        if (!expandMediaSet(selected, mDataManager.getMediaSet(id),
-                                maxSelection)) {
-                            return null;
-                        }
-                    } else {
                         selected.add(id);
                         if (selected.size() > maxSelection) {
                             return null;
                         }
                     }
                 }
+                index += count;
             }
         } else {
-            if (mInverseSelection) {
-                int total = getTotalCount();
-                int index = 0;
-                while (index < total) {
-                    int count = Math.min(total - index, MediaSet.MEDIAITEM_BATCH_FETCH_COUNT);
-                    ArrayList<MediaItem> list = mSourceMediaSet.getMediaItem(index, count);
-                    for (MediaItem item : list) {
-                        Path id = item.getPath();
-                        if (!mClickedSet.contains(id)) {
-                            selected.add(id);
-                            if (selected.size() > maxSelection) {
-                                return null;
-                            }
-                        }
-                    }
-                    index += count;
-                }
-            } else {
-                for (Path id : mClickedSet) {
-                    selected.add(id);
-                    if (selected.size() > maxSelection) {
-                        return null;
-                    }
+            for (Path id : mClickedSet) {
+                selected.add(id);
+                if (selected.size() > maxSelection) {
+                    return null;
                 }
             }
         }

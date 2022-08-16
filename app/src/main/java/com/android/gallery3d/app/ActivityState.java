@@ -197,20 +197,20 @@ abstract public class ActivityState {
     // should only be called by StateManager
     void resume() {
         AbstractGalleryActivity activity = mActivity;
-        ActionBar actionBar = activity.getActionBar();
-        if (actionBar != null) {
-            if ((mFlags & FLAG_HIDE_ACTION_BAR) != 0) {
-                actionBar.hide();
-            } else {
-                actionBar.show();
-            }
-            int stateCount = mActivity.getStateManager().getStateCount();
-            mActivity.getGalleryActionBar().setDisplayOptions(stateCount > 1, true);
-            // Default behavior, this can be overridden in ActivityState's onResume.
-            actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
-        }
-
-        activity.invalidateOptionsMenu();
+//        ActionBar actionBar = activity.getActionBar();
+//        if (actionBar != null) {
+//            if ((mFlags & FLAG_HIDE_ACTION_BAR) != 0) {
+//                actionBar.hide();
+//            } else {
+//                actionBar.show();
+//            }
+//            int stateCount = mActivity.getStateManager().getStateCount();
+////            mActivity.getGalleryActionBar().setDisplayOptions(stateCount > 1, true);
+//            // Default behavior, this can be overridden in ActivityState's onResume.
+//            actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
+//        }
+//
+//        activity.invalidateOptionsMenu();
 
         setScreenFlags();
 
@@ -268,9 +268,5 @@ abstract public class ActivityState {
 
     public boolean isFinishing() {
         return mIsFinishing;
-    }
-
-    protected MenuInflater getSupportMenuInflater() {
-        return mActivity.getMenuInflater();
     }
 }

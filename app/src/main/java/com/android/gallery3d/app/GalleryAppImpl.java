@@ -21,12 +21,8 @@ import android.content.Context;
 import android.os.AsyncTask;
 
 import com.android.gallery3d.data.DataManager;
-import com.android.gallery3d.data.DownloadCache;
 import com.android.gallery3d.data.ImageCacheService;
-import com.android.gallery3d.gadget.WidgetUtils;
-import com.android.gallery3d.picasasource.PicasaSource;
 import com.android.gallery3d.util.GalleryUtils;
-import com.android.gallery3d.util.LightCycleHelper;
 import com.android.gallery3d.util.ThreadPool;
 import com.android.gallery3d.util.UsageStatistics;
 
@@ -41,15 +37,14 @@ public class GalleryAppImpl extends Application implements GalleryApp {
     private Object mLock = new Object();
     private DataManager mDataManager;
     private ThreadPool mThreadPool;
-    private DownloadCache mDownloadCache;
 
     @Override
     public void onCreate() {
         super.onCreate();
         initializeAsyncTask();
         GalleryUtils.initialize(this);
-        WidgetUtils.initialize(this);
-        PicasaSource.initialize(this);
+        // TONY WidgetUtils.initialize(this);
+        // TONY PicasaSource.initialize(this);
         UsageStatistics.initialize(this);
     }
 
@@ -87,21 +82,21 @@ public class GalleryAppImpl extends Application implements GalleryApp {
         return mThreadPool;
     }
 
-    @Override
-    public synchronized DownloadCache getDownloadCache() {
-        if (mDownloadCache == null) {
-            File cacheDir = new File(getExternalCacheDir(), DOWNLOAD_FOLDER);
-
-            if (!cacheDir.isDirectory()) cacheDir.mkdirs();
-
-            if (!cacheDir.isDirectory()) {
-                throw new RuntimeException(
-                        "fail to create: " + cacheDir.getAbsolutePath());
-            }
-            mDownloadCache = new DownloadCache(this, cacheDir, DOWNLOAD_CAPACITY);
-        }
-        return mDownloadCache;
-    }
+//    @Override
+//    public synchronized DownloadCache getDownloadCache() {
+//        if (mDownloadCache == null) {
+//            File cacheDir = new File(getExternalCacheDir(), DOWNLOAD_FOLDER);
+//
+//            if (!cacheDir.isDirectory()) cacheDir.mkdirs();
+//
+//            if (!cacheDir.isDirectory()) {
+//                throw new RuntimeException(
+//                        "fail to create: " + cacheDir.getAbsolutePath());
+//            }
+//            mDownloadCache = new DownloadCache(this, cacheDir, DOWNLOAD_CAPACITY);
+//        }
+//        return mDownloadCache;
+//    }
 
     private void initializeAsyncTask() {
         // AsyncTask class needs to be loaded in UI thread.

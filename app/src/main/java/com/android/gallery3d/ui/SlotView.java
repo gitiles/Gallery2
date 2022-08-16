@@ -74,7 +74,7 @@ public class SlotView extends GLView {
 
     // whether the down action happened while the view is scrolling.
     private boolean mDownInScrolling;
-    private int mOverscrollEffect = OVERSCROLL_3D;
+    private int mOverscrollEffect = OVERSCROLL_SYSTEM;
     private final Handler mHandler;
 
     private SlotRenderer mRenderer;
@@ -501,7 +501,7 @@ public class SlotView extends GLView {
                 int rows = (mWidth > mHeight) ? mSpec.rowsLand : mSpec.rowsPort;
                 mSlotGap = mSpec.slotGap;
                 mSlotHeight = Math.max(1, (mHeight - (rows - 1) * mSlotGap) / rows);
-                mSlotWidth = mSlotHeight - mSpec.slotHeightAdditional;
+                mSlotWidth = Math.max(1, (mWidth - (rows - 1) * mSlotGap) / rows); // mSlotHeight - mSpec.slotHeightAdditional;
             }
 
             if (mRenderer != null) {

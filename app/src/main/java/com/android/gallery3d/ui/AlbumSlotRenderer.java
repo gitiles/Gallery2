@@ -123,13 +123,13 @@ public class AlbumSlotRenderer extends AbstractSlotRenderer {
             renderRequestFlags |= SlotView.RENDER_MORE_FRAME;
         }
 
-        if (entry.mediaType == MediaObject.MEDIA_TYPE_VIDEO) {
-            drawVideoOverlay(canvas, width, height);
-        }
+//        if (entry.mediaType == MediaObject.MEDIA_TYPE_VIDEO) {
+//            drawVideoOverlay(canvas, width, height);
+//        }
 
-        if (entry.isPanorama) {
-            drawPanoramaIcon(canvas, width, height);
-        }
+//        if (entry.isPanorama) {
+//            drawPanoramaIcon(canvas, width, height);
+//        }
 
         renderRequestFlags |= renderOverlay(canvas, index, entry, width, height);
 

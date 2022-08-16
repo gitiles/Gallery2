@@ -103,14 +103,6 @@ public class StateManager {
         if (mIsResumed) state.resume();
     }
 
-    public boolean createOptionsMenu(Menu menu) {
-        if (mStack.isEmpty()) {
-            return false;
-        } else {
-            return getTopState().onCreateActionBar(menu);
-        }
-    }
-
     public void onConfigurationChange(Configuration config) {
         for (StateEntry entry : mStack) {
             entry.activityState.onConfigurationChanged(config);
@@ -232,11 +224,11 @@ public class StateManager {
         }
         // Remove the top state.
         mStack.pop();
-        if (!data.containsKey(PhotoPage.KEY_APP_BRIDGE)) {
-            // Do not do the fade out stuff when we are switching camera modes
-            oldState.transitionOnNextPause(oldState.getClass(), klass,
-                    StateTransitionAnimation.Transition.Incoming);
-        }
+//        if (!data.containsKey(PhotoPage.KEY_APP_BRIDGE)) {
+//            // Do not do the fade out stuff when we are switching camera modes
+//            oldState.transitionOnNextPause(oldState.getClass(), klass,
+//                    StateTransitionAnimation.Transition.Incoming);
+//        }
         if (mIsResumed) oldState.onPause();
         oldState.onDestroy();
 

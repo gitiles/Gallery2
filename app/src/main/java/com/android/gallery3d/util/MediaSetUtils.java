@@ -18,8 +18,6 @@ package com.android.gallery3d.util;
 
 import android.os.Environment;
 
-import com.android.gallery3d.data.LocalAlbum;
-import com.android.gallery3d.data.LocalMergeAlbum;
 import com.android.gallery3d.data.MediaSet;
 import com.android.gallery3d.data.Path;
 
@@ -31,18 +29,18 @@ public class MediaSetUtils {
     public static final int CAMERA_BUCKET_ID = GalleryUtils.getBucketId(
             Environment.getExternalStorageDirectory().toString() + "/"
             + BucketNames.CAMERA);
-    public static final int DOWNLOAD_BUCKET_ID = GalleryUtils.getBucketId(
-            Environment.getExternalStorageDirectory().toString() + "/"
-            + BucketNames.DOWNLOAD);
-    public static final int EDITED_ONLINE_PHOTOS_BUCKET_ID = GalleryUtils.getBucketId(
-            Environment.getExternalStorageDirectory().toString() + "/"
-            + BucketNames.EDITED_ONLINE_PHOTOS);
-    public static final int IMPORTED_BUCKET_ID = GalleryUtils.getBucketId(
-            Environment.getExternalStorageDirectory().toString() + "/"
-            + BucketNames.IMPORTED);
-    public static final int SNAPSHOT_BUCKET_ID = GalleryUtils.getBucketId(
-            Environment.getExternalStorageDirectory().toString() +
-            "/" + BucketNames.SCREENSHOTS);
+//    public static final int DOWNLOAD_BUCKET_ID = GalleryUtils.getBucketId(
+//            Environment.getExternalStorageDirectory().toString() + "/"
+//            + BucketNames.DOWNLOAD);
+//    public static final int EDITED_ONLINE_PHOTOS_BUCKET_ID = GalleryUtils.getBucketId(
+//            Environment.getExternalStorageDirectory().toString() + "/"
+//            + BucketNames.EDITED_ONLINE_PHOTOS);
+//    public static final int IMPORTED_BUCKET_ID = GalleryUtils.getBucketId(
+//            Environment.getExternalStorageDirectory().toString() + "/"
+//            + BucketNames.IMPORTED);
+//    public static final int SNAPSHOT_BUCKET_ID = GalleryUtils.getBucketId(
+//            Environment.getExternalStorageDirectory().toString() +
+//            "/" + BucketNames.SCREENSHOTS);
 
     private static final Path[] CAMERA_PATHS = {
             Path.fromString("/local/all/" + CAMERA_BUCKET_ID),

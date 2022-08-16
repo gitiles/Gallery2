@@ -31,12 +31,10 @@ import android.provider.MediaStore.MediaColumns;
 import android.util.Log;
 
 import com.android.gallery3d.app.GalleryApp;
-import com.android.gallery3d.app.PanoramaMetadataSupport;
 import com.android.gallery3d.common.ApiHelper;
 import com.android.gallery3d.common.BitmapUtils;
 import com.android.gallery3d.exif.ExifInterface;
 import com.android.gallery3d.exif.ExifTag;
-import com.android.gallery3d.filtershow.tools.SaveImage;
 import com.android.gallery3d.util.GalleryUtils;
 import com.android.gallery3d.util.ThreadPool.Job;
 import com.android.gallery3d.util.ThreadPool.JobContext;
@@ -102,7 +100,7 @@ public class LocalImage extends LocalMediaItem {
 
     public int rotation;
 
-    private PanoramaMetadataSupport mPanoramaMetadata = new PanoramaMetadataSupport(this);
+    // TONY private PanoramaMetadataSupport mPanoramaMetadata = new PanoramaMetadataSupport(this);
 
     public LocalImage(Path path, GalleryApp application, Cursor cursor) {
         super(path, nextVersionNumber());
@@ -253,59 +251,6 @@ public class LocalImage extends LocalMediaItem {
     }
 
     @Override
-    public void getPanoramaSupport(PanoramaSupportCallback callback) {
-        mPanoramaMetadata.getPanoramaSupport(mApplication, callback);
-    }
-
-    @Override
-    public void clearCachedPanoramaSupport() {
-        mPanoramaMetadata.clearCachedValues();
-    }
-
-    @Override
-    public void delete() {
-        GalleryUtils.assertNotInRenderThread();
-        Uri baseUri = Images.Media.EXTERNAL_CONTENT_URI;
-        ContentResolver contentResolver = mApplication.getContentResolver();
-        SaveImage.deleteAuxFiles(contentResolver, getContentUri());
-        contentResolver.delete(baseUri, "_id=?",
-                new String[]{String.valueOf(id)});
-    }
-
-    @Override
-    public void rotate(int degrees) {
-        GalleryUtils.assertNotInRenderThread();
-        Uri baseUri = Images.Media.EXTERNAL_CONTENT_URI;
-        ContentValues values = new ContentValues();
-        int rotation = (this.rotation + degrees) % 360;
-        if (rotation < 0) rotation += 360;
-
-        if (mimeType.equalsIgnoreCase("image/jpeg")) {
-            ExifInterface exifInterface = new ExifInterface();
-            ExifTag tag = exifInterface.buildTag(ExifInterface.TAG_ORIENTATION,
-                    ExifInterface.getOrientationValueForRotation(rotation));
-            if(tag != null) {
-                exifInterface.setTag(tag);
-                try {
-                    exifInterface.forceRewriteExif(filePath);
-                    fileSize = new File(filePath).length();
-                    values.put(Images.Media.SIZE, fileSize);
-                } catch (FileNotFoundException e) {
-                    Log.w(TAG, "cannot find file to set exif: " + filePath);
-                } catch (IOException e) {
-                    Log.w(TAG, "cannot set exif data: " + filePath);
-                }
-            } else {
-                Log.w(TAG, "Could not build tag: " + ExifInterface.TAG_ORIENTATION);
-            }
-        }
-
-        values.put(Images.Media.ORIENTATION, rotation);
-        mApplication.getContentResolver().update(baseUri, values, "_id=?",
-                new String[]{String.valueOf(id)});
-    }
-
-    @Override
     public Uri getContentUri() {
         Uri baseUri = Images.Media.EXTERNAL_CONTENT_URI;
         return baseUri.buildUpon().appendPath(String.valueOf(id)).build();
@@ -316,17 +261,17 @@ public class LocalImage extends LocalMediaItem {
         return MEDIA_TYPE_IMAGE;
     }
 
-    @Override
-    public MediaDetails getDetails() {
-        MediaDetails details = super.getDetails();
-        details.addDetail(MediaDetails.INDEX_ORIENTATION, Integer.valueOf(rotation));
-        if (MIME_TYPE_JPEG.equals(mimeType)) {
-            // ExifInterface returns incorrect values for photos in other format.
-            // For example, the width and height of an webp images is always '0'.
-            MediaDetails.extractExifInfo(details, filePath);
-        }
-        return details;
-    }
+//    @Override
+//    public MediaDetails getDetails() {
+//        MediaDetails details = super.getDetails();
+//        details.addDetail(MediaDetails.INDEX_ORIENTATION, Integer.valueOf(rotation));
+//        if (MIME_TYPE_JPEG.equals(mimeType)) {
+//            // ExifInterface returns incorrect values for photos in other format.
+//            // For example, the width and height of an webp images is always '0'.
+//            MediaDetails.extractExifInfo(details, filePath);
+//        }
+//        return details;
+//    }
 
     @Override
     public int getRotation() {

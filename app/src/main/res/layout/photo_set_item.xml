@@ -6,9 +6,9 @@
     android:background="?android:attr/activatedBackgroundIndicator"
     android:padding="2dip">
 
-    <com.android.photos.views.SquareImageView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/thumbnail" />
+<!--    <com.android.photos.views.SquareImageView-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:id="@+id/thumbnail" />-->
 
 </FrameLayout>

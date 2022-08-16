@@ -1,5 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+  <component name="DesignSurface">
+    <option name="filePathToZoomLevelMap">
+      <map>
+        <entry key="app/src/main/res/layout-land/switcher_popup.xml" value="0.20899470899470898" />
+        <entry key="app/src/main/res/layout/album_content.xml" value="0.35597826086956524" />
+        <entry key="app/src/main/res/layout/dialog_picker.xml" value="0.26358695652173914" />
+        <entry key="app/src/main/res/layout/gl_root_group.xml" value="0.26222826086956524" />
+        <entry key="app/src/main/res/layout/main.xml" value="0.246875" />
+        <entry key="app/src/main/res/layout/photo_set_item.xml" value="0.35597826086956524" />
+        <entry key="app/src/main/res/layout/photopage_bottom_controls.xml" value="0.35597826086956524" />
+        <entry key="app/src/main/res/menu/album.xml" value="0.246875" />
+        <entry key="app/src/main/res/menu/albumset.xml" value="0.37604166666666666" />
+        <entry key="app/src/main/res/menu/operation.xml" value="0.246875" />
+        <entry key="app/src/main/res/menu/photo.xml" value="0.246875" />
+        <entry key="app/src/main/res/menu/pickup.xml" value="0.37604166666666666" />
+      </map>
+    </option>
+  </component>
   <component name="ProjectRootManager" version="2" languageLevel="JDK_11" default="true" project-jdk-name="11" project-jdk-type="JavaSDK">
     <output url="file://$PROJECT_DIR$/build/classes" />
   </component>

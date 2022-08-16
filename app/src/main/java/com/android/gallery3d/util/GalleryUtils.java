@@ -256,12 +256,12 @@ public class GalleryUtils {
         }
     }
 
-    public static void startGalleryActivity(Context context) {
-        Intent intent = new Intent(context, GalleryActivity.class)
-                .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP
-                | Intent.FLAG_ACTIVITY_NEW_TASK);
-        context.startActivity(intent);
-    }
+//    public static void startGalleryActivity(Context context) {
+//        Intent intent = new Intent(context, GalleryActivity.class)
+//                .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP
+//                | Intent.FLAG_ACTIVITY_NEW_TASK);
+//        context.startActivity(intent);
+//    }
 
     public static boolean isValidLocation(double latitude, double longitude) {
         // TODO: change || to && after we fix the default location issue

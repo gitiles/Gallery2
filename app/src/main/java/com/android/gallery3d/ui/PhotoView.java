@@ -82,13 +82,6 @@ public class PhotoView extends GLView {
         // Returns true if the item is the Camera preview.
         public boolean isCamera(int offset);
 
-        // Returns true if the item is the Panorama.
-        public boolean isPanorama(int offset);
-
-        // Returns true if the item is a static image that represents camera
-        // preview.
-        public boolean isStaticCamera(int offset);
-
         // Returns true if the item is a Video.
         public boolean isVideo(int offset);
 
@@ -121,16 +114,16 @@ public class PhotoView extends GLView {
 
     public interface Listener {
         public void onSingleTapUp(int x, int y);
-        public void onFullScreenChanged(boolean full);
+//        public void onFullScreenChanged(boolean full);
         public void onActionBarAllowed(boolean allowed);
         public void onActionBarWanted();
         public void onCurrentImageUpdated();
-        public void onDeleteImage(Path path, int offset);
-        public void onUndoDeleteImage();
-        public void onCommitDeleteImage();
+//        public void onDeleteImage(Path path, int offset);
+//        public void onUndoDeleteImage();
+//        public void onCommitDeleteImage();
         public void onFilmModeChanged(boolean enabled);
         public void onPictureCenter(boolean isCamera);
-        public void onUndoBarVisibilityChanged(boolean visible);
+//        public void onUndoBarVisibilityChanged(boolean visible);
     }
 
     // The rules about orientation locking:
@@ -151,10 +144,10 @@ public class PhotoView extends GLView {
     private static final int MSG_CANCEL_EXTRA_SCALING = 2;
     private static final int MSG_SWITCH_FOCUS = 3;
     private static final int MSG_CAPTURE_ANIMATION_DONE = 4;
-    private static final int MSG_DELETE_ANIMATION_DONE = 5;
-    private static final int MSG_DELETE_DONE = 6;
-    private static final int MSG_UNDO_BAR_TIMEOUT = 7;
-    private static final int MSG_UNDO_BAR_FULL_CAMERA = 8;
+//    private static final int MSG_DELETE_ANIMATION_DONE = 5;
+//    private static final int MSG_DELETE_DONE = 6;
+//    private static final int MSG_UNDO_BAR_TIMEOUT = 7;
+//    private static final int MSG_UNDO_BAR_FULL_CAMERA = 8;
 
     private static final float SWIPE_THRESHOLD = 300f;
 
@@ -198,7 +191,7 @@ public class PhotoView extends GLView {
     private StringTexture mNoThumbnailText;
     private TileImageView mTileView;
     private EdgeView mEdgeView;
-    private UndoBarView mUndoBar;
+//    private UndoBarView mUndoBar;
     private Texture mVideoPlayIcon;
 
     private SynchronizedHandler mHandler;
@@ -238,7 +231,7 @@ public class PhotoView extends GLView {
     // This is the index of the last deleted item. This is only used as a hint
     // to hide the undo button when we are too far away from the deleted
     // item. The value Integer.MAX_VALUE means there is no such hint.
-    private int mUndoIndexHint = Integer.MAX_VALUE;
+//    private int mUndoIndexHint = Integer.MAX_VALUE;
 
     private Context mContext;
 
@@ -250,16 +243,16 @@ public class PhotoView extends GLView {
                 R.color.photo_placeholder);
         mEdgeView = new EdgeView(mContext);
         addComponent(mEdgeView);
-        mUndoBar = new UndoBarView(mContext);
-        addComponent(mUndoBar);
-        mUndoBar.setVisibility(GLView.INVISIBLE);
-        mUndoBar.setOnClickListener(new OnClickListener() {
-                @Override
-                public void onClick(GLView v) {
-                    mListener.onUndoDeleteImage();
-                    hideUndoBar();
-                }
-            });
+//        mUndoBar = new UndoBarView(mContext);
+//        addComponent(mUndoBar);
+//        mUndoBar.setVisibility(GLView.INVISIBLE);
+//        mUndoBar.setOnClickListener(new OnClickListener() {
+//                @Override
+//                public void onClick(GLView v) {
+//                    mListener.onUndoDeleteImage();
+//                    hideUndoBar();
+//                }
+//            });
         mNoThumbnailText = StringTexture.newInstance(
                 mContext.getString(R.string.no_thumbnail),
                 DEFAULT_TEXT_SIZE, Color.WHITE);
@@ -345,48 +338,48 @@ public class PhotoView extends GLView {
                     captureAnimationDone(message.arg1);
                     break;
                 }
-                case MSG_DELETE_ANIMATION_DONE: {
-                    // message.obj is the Path of the MediaItem which should be
-                    // deleted. message.arg1 is the offset of the image.
-                    mListener.onDeleteImage((Path) message.obj, message.arg1);
-                    // Normally a box which finishes delete animation will hold
-                    // position until the underlying MediaItem is actually
-                    // deleted, and HOLD_DELETE will be cancelled that time. In
-                    // case the MediaItem didn't actually get deleted in 2
-                    // seconds, we will cancel HOLD_DELETE and make it bounce
-                    // back.
-
-                    // We make sure there is at most one MSG_DELETE_DONE
-                    // in the handler.
-                    mHandler.removeMessages(MSG_DELETE_DONE);
-                    Message m = mHandler.obtainMessage(MSG_DELETE_DONE);
-                    mHandler.sendMessageDelayed(m, 2000);
-
-                    int numberOfPictures = mNextBound - mPrevBound + 1;
-                    if (numberOfPictures == 2) {
-                        if (mModel.isCamera(mNextBound)
-                                || mModel.isCamera(mPrevBound)) {
-                            numberOfPictures--;
-                        }
-                    }
-                    showUndoBar(numberOfPictures <= 1);
-                    break;
-                }
-                case MSG_DELETE_DONE: {
-                    if (!mHandler.hasMessages(MSG_DELETE_ANIMATION_DONE)) {
-                        mHolding &= ~HOLD_DELETE;
-                        snapback();
-                    }
-                    break;
-                }
-                case MSG_UNDO_BAR_TIMEOUT: {
-                    checkHideUndoBar(UNDO_BAR_TIMEOUT);
-                    break;
-                }
-                case MSG_UNDO_BAR_FULL_CAMERA: {
-                    checkHideUndoBar(UNDO_BAR_FULL_CAMERA);
-                    break;
-                }
+//                case MSG_DELETE_ANIMATION_DONE: {
+//                    // message.obj is the Path of the MediaItem which should be
+//                    // deleted. message.arg1 is the offset of the image.
+//                    mListener.onDeleteImage((Path) message.obj, message.arg1);
+//                    // Normally a box which finishes delete animation will hold
+//                    // position until the underlying MediaItem is actually
+//                    // deleted, and HOLD_DELETE will be cancelled that time. In
+//                    // case the MediaItem didn't actually get deleted in 2
+//                    // seconds, we will cancel HOLD_DELETE and make it bounce
+//                    // back.
+//
+//                    // We make sure there is at most one MSG_DELETE_DONE
+//                    // in the handler.
+//                    mHandler.removeMessages(MSG_DELETE_DONE);
+//                    Message m = mHandler.obtainMessage(MSG_DELETE_DONE);
+//                    mHandler.sendMessageDelayed(m, 2000);
+//
+//                    int numberOfPictures = mNextBound - mPrevBound + 1;
+//                    if (numberOfPictures == 2) {
+//                        if (mModel.isCamera(mNextBound)
+//                                || mModel.isCamera(mPrevBound)) {
+//                            numberOfPictures--;
+//                        }
+//                    }
+//                    showUndoBar(numberOfPictures <= 1);
+//                    break;
+//                }
+//                case MSG_DELETE_DONE: {
+//                    if (!mHandler.hasMessages(MSG_DELETE_ANIMATION_DONE)) {
+//                        mHolding &= ~HOLD_DELETE;
+//                        snapback();
+//                    }
+//                    break;
+//                }
+//                case MSG_UNDO_BAR_TIMEOUT: {
+//                    checkHideUndoBar(UNDO_BAR_TIMEOUT);
+//                    break;
+//                }
+//                case MSG_UNDO_BAR_FULL_CAMERA: {
+//                    checkHideUndoBar(UNDO_BAR_FULL_CAMERA);
+//                    break;
+//                }
                 default: throw new AssertionError(message.what);
             }
         }
@@ -417,11 +410,11 @@ public class PhotoView extends GLView {
         }
 
         // Hide undo button if we are too far away
-        if (mUndoIndexHint != Integer.MAX_VALUE) {
-            if (Math.abs(mUndoIndexHint - mModel.getCurrentIndex()) >= 3) {
-                hideUndoBar();
-            }
-        }
+//        if (mUndoIndexHint != Integer.MAX_VALUE) {
+//            if (Math.abs(mUndoIndexHint - mModel.getCurrentIndex()) >= 3) {
+//                hideUndoBar();
+//            }
+//        }
 
         // Update the ScreenNails.
         for (int i = -SCREEN_NAIL_MAX; i <= SCREEN_NAIL_MAX; i++) {
@@ -444,12 +437,12 @@ public class PhotoView extends GLView {
 
         // If the deletion is done, make HOLD_DELETE persist for only the time
         // needed for a snapback animation.
-        if (wasDeleting && !isDeleting) {
-            mHandler.removeMessages(MSG_DELETE_DONE);
-            Message m = mHandler.obtainMessage(MSG_DELETE_DONE);
-            mHandler.sendMessageDelayed(
-                    m, PositionController.SNAPBACK_ANIMATION_TIME);
-        }
+//        if (wasDeleting && !isDeleting) {
+//            mHandler.removeMessages(MSG_DELETE_DONE);
+//            Message m = mHandler.obtainMessage(MSG_DELETE_DONE);
+//            mHandler.sendMessageDelayed(
+//                    m, PositionController.SNAPBACK_ANIMATION_TIME);
+//        }
 
         invalidate();
     }
@@ -481,8 +474,8 @@ public class PhotoView extends GLView {
         int h = bottom - top;
         mTileView.layout(0, 0, w, h);
         mEdgeView.layout(0, 0, w, h);
-        mUndoBar.measure(MeasureSpec.UNSPECIFIED, MeasureSpec.UNSPECIFIED);
-        mUndoBar.layout(0, h - mUndoBar.getMeasuredHeight(), w, h);
+//        mUndoBar.measure(MeasureSpec.UNSPECIFIED, MeasureSpec.UNSPECIFIED);
+//        mUndoBar.layout(0, h - mUndoBar.getMeasuredHeight(), w, h);
 
         GLRoot root = getGLRoot();
         int displayRotation = root.getDisplayRotation();
@@ -540,15 +533,6 @@ public class PhotoView extends GLView {
                 + ", mCameraRect = " + mCameraRect);
     }
 
-    public void setCameraRelativeFrame(Rect frame) {
-        mCameraRelativeFrame.set(frame);
-        updateCameraRect();
-        // Originally we do
-        //     mPositionController.setConstrainedFrame(mCameraRect);
-        // here, but it is moved to a parameter of the setImageSize() call, so
-        // it can be updated atomically with the CameraScreenNail's size change.
-    }
-
     // Returns the rotation we need to do to the camera texture before drawing
     // it to the canvas, assuming the camera texture is correct when the device
     // is in its natural orientation.
@@ -591,8 +575,6 @@ public class PhotoView extends GLView {
     class FullPicture implements Picture {
         private int mRotation;
         private boolean mIsCamera;
-        private boolean mIsPanorama;
-        private boolean mIsStaticCamera;
         private boolean mIsVideo;
         private boolean mIsDeletable;
         private int mLoadingState = Model.LOADING_INIT;
@@ -604,8 +586,6 @@ public class PhotoView extends GLView {
             mTileView.notifyModelInvalidated();
 
             mIsCamera = mModel.isCamera(0);
-            mIsPanorama = mModel.isPanorama(0);
-            mIsStaticCamera = mModel.isStaticCamera(0);
             mIsVideo = mModel.isVideo(0);
             mIsDeletable = mModel.isDeletable(0);
             mLoadingState = mModel.getLoadingState(0);
@@ -625,9 +605,7 @@ public class PhotoView extends GLView {
         }
 
         private void updateSize() {
-            if (mIsPanorama) {
-                mRotation = getPanoramaRotation();
-            } else if (mIsCamera && !mIsStaticCamera) {
+            if (mIsCamera) {
                 mRotation = getCameraRotation();
             } else {
                 mRotation = mModel.getImageRotation(0);
@@ -772,8 +750,6 @@ public class PhotoView extends GLView {
         private int mRotation;
         private ScreenNail mScreenNail;
         private boolean mIsCamera;
-        private boolean mIsPanorama;
-        private boolean mIsStaticCamera;
         private boolean mIsVideo;
         private boolean mIsDeletable;
         private int mLoadingState = Model.LOADING_INIT;
@@ -786,8 +762,6 @@ public class PhotoView extends GLView {
         @Override
         public void reload() {
             mIsCamera = mModel.isCamera(mIndex);
-            mIsPanorama = mModel.isPanorama(mIndex);
-            mIsStaticCamera = mModel.isStaticCamera(mIndex);
             mIsVideo = mModel.isVideo(mIndex);
             mIsDeletable = mModel.isDeletable(mIndex);
             mLoadingState = mModel.getLoadingState(mIndex);
@@ -876,9 +850,7 @@ public class PhotoView extends GLView {
         }
 
         private void updateSize() {
-            if (mIsPanorama) {
-                mRotation = getPanoramaRotation();
-            } else if (mIsCamera && !mIsStaticCamera) {
+            if (mIsCamera) {
                 mRotation = getCameraRotation();
             } else {
                 mRotation = mModel.getImageRotation(mIndex);
@@ -1117,7 +1089,7 @@ public class PhotoView extends GLView {
                 int duration = mPositionController.flingFilmY(mTouchBoxIndex, vy);
                 if (duration >= 0) {
                     mPositionController.setPopFromTop(vy < 0);
-                    deleteAfterAnimation(duration);
+//                    deleteAfterAnimation(duration);
                     // We reset mTouchBoxIndex, so up() won't check if Y
                     // scrolled far enough to be a delete gesture.
                     mTouchBoxIndex = Integer.MAX_VALUE;
@@ -1127,17 +1099,17 @@ public class PhotoView extends GLView {
             return false;
         }
 
-        private void deleteAfterAnimation(int duration) {
-            MediaItem item = mModel.getMediaItem(mTouchBoxIndex);
-            if (item == null) return;
-            mListener.onCommitDeleteImage();
-            mUndoIndexHint = mModel.getCurrentIndex() + mTouchBoxIndex;
-            mHolding |= HOLD_DELETE;
-            Message m = mHandler.obtainMessage(MSG_DELETE_ANIMATION_DONE);
-            m.obj = item.getPath();
-            m.arg1 = mTouchBoxIndex;
-            mHandler.sendMessageDelayed(m, duration);
-        }
+//        private void deleteAfterAnimation(int duration) {
+//            MediaItem item = mModel.getMediaItem(mTouchBoxIndex);
+//            if (item == null) return;
+//            mListener.onCommitDeleteImage();
+//            mUndoIndexHint = mModel.getCurrentIndex() + mTouchBoxIndex;
+//            mHolding |= HOLD_DELETE;
+//            Message m = mHandler.obtainMessage(MSG_DELETE_ANIMATION_DONE);
+//            m.obj = item.getPath();
+//            m.arg1 = mTouchBoxIndex;
+//            mHandler.sendMessageDelayed(m, duration);
+//        }
 
         @Override
         public boolean onScaleBegin(float focusX, float focusY) {
@@ -1233,7 +1205,7 @@ public class PhotoView extends GLView {
 
         @Override
         public void onDown(float x, float y) {
-            checkHideUndoBar(UNDO_BAR_TOUCHED);
+//            checkHideUndoBar(UNDO_BAR_TOUCHED);
 
             mDeltaY = 0;
             mModeChanged = false;
@@ -1286,7 +1258,7 @@ public class PhotoView extends GLView {
                             .flingFilmY(mTouchBoxIndex, 0);
                     if (duration >= 0) {
                         mPositionController.setPopFromTop(r.centerY() < h * 0.5f);
-                        deleteAfterAnimation(duration);
+//                        deleteAfterAnimation(duration);
                     }
                 }
             }
@@ -1347,73 +1319,12 @@ public class PhotoView extends GLView {
         for (int i = -SCREEN_NAIL_MAX; i <= SCREEN_NAIL_MAX; i++) {
             mPictures.get(i).setScreenNail(null);
         }
-        hideUndoBar();
+//        hideUndoBar();
     }
 
     public void resume() {
         mTileView.prepareTextures();
         mPositionController.skipToFinalPosition();
-    }
-
-    // move to the camera preview and show controls after resume
-    public void resetToFirstPicture() {
-        mModel.moveTo(0);
-        setFilmMode(false);
-    }
-
-    ////////////////////////////////////////////////////////////////////////////
-    //  Undo Bar
-    ////////////////////////////////////////////////////////////////////////////
-
-    private int mUndoBarState;
-    private static final int UNDO_BAR_SHOW = 1;
-    private static final int UNDO_BAR_TIMEOUT = 2;
-    private static final int UNDO_BAR_TOUCHED = 4;
-    private static final int UNDO_BAR_FULL_CAMERA = 8;
-    private static final int UNDO_BAR_DELETE_LAST = 16;
-
-    // "deleteLast" means if the deletion is on the last remaining picture in
-    // the album.
-    private void showUndoBar(boolean deleteLast) {
-        mHandler.removeMessages(MSG_UNDO_BAR_TIMEOUT);
-        mUndoBarState = UNDO_BAR_SHOW;
-        if(deleteLast) mUndoBarState |= UNDO_BAR_DELETE_LAST;
-        mUndoBar.animateVisibility(GLView.VISIBLE);
-        mHandler.sendEmptyMessageDelayed(MSG_UNDO_BAR_TIMEOUT, 3000);
-        if (mListener != null) mListener.onUndoBarVisibilityChanged(true);
-    }
-
-    private void hideUndoBar() {
-        mHandler.removeMessages(MSG_UNDO_BAR_TIMEOUT);
-        mListener.onCommitDeleteImage();
-        mUndoBar.animateVisibility(GLView.INVISIBLE);
-        mUndoBarState = 0;
-        mUndoIndexHint = Integer.MAX_VALUE;
-        mListener.onUndoBarVisibilityChanged(false);
-    }
-
-    // Check if the one of the conditions for hiding the undo bar has been
-    // met. The conditions are:
-    //
-    // 1. It has been three seconds since last showing, and (a) the user has
-    // touched, or (b) the deleted picture is the last remaining picture in the
-    // album.
-    //
-    // 2. The camera is shown in full screen.
-    private void checkHideUndoBar(int addition) {
-        mUndoBarState |= addition;
-        if ((mUndoBarState & UNDO_BAR_SHOW) == 0) return;
-        boolean timeout = (mUndoBarState & UNDO_BAR_TIMEOUT) != 0;
-        boolean touched = (mUndoBarState & UNDO_BAR_TOUCHED) != 0;
-        boolean fullCamera = (mUndoBarState & UNDO_BAR_FULL_CAMERA) != 0;
-        boolean deleteLast = (mUndoBarState & UNDO_BAR_DELETE_LAST) != 0;
-        if ((timeout && deleteLast) || fullCamera || touched) {
-            hideUndoBar();
-        }
-    }
-
-    public boolean canUndo() {
-        return (mUndoBarState & UNDO_BAR_SHOW) != 0;
     }
 
     ////////////////////////////////////////////////////////////////////////////
@@ -1434,8 +1345,8 @@ public class PhotoView extends GLView {
         if (mFirst || full != mFullScreenCamera) {
             mFullScreenCamera = full;
             mFirst = false;
-            mListener.onFullScreenChanged(full);
-            if (full) mHandler.sendEmptyMessage(MSG_UNDO_BAR_FULL_CAMERA);
+            //mListener.onFullScreenChanged(full);
+//            if (full) mHandler.sendEmptyMessage(MSG_UNDO_BAR_FULL_CAMERA);
         }
 
         // Determine how many photos we need to draw in addition to the center
@@ -1463,7 +1374,7 @@ public class PhotoView extends GLView {
         }
 
         renderChild(canvas, mEdgeView);
-        renderChild(canvas, mUndoBar);
+//        renderChild(canvas, mUndoBar);
 
         mPositionController.advanceAnimation();
         checkFocusSwitching();
@@ -1811,47 +1722,5 @@ public class PhotoView extends GLView {
 
     public Rect getPhotoRect(int index) {
         return mPositionController.getPosition(index);
-    }
-
-    public PhotoFallbackEffect buildFallbackEffect(GLView root, GLCanvas canvas) {
-        Rect location = new Rect();
-        Utils.assertTrue(root.getBoundsOf(this, location));
-
-        Rect fullRect = bounds();
-        PhotoFallbackEffect effect = new PhotoFallbackEffect();
-        for (int i = -SCREEN_NAIL_MAX; i <= SCREEN_NAIL_MAX; ++i) {
-            MediaItem item = mModel.getMediaItem(i);
-            if (item == null) continue;
-            ScreenNail sc = mModel.getScreenNail(i);
-            if (!(sc instanceof TiledScreenNail)
-                    || ((TiledScreenNail) sc).isShowingPlaceholder()) continue;
-
-            // Now, sc is BitmapScreenNail and is not showing placeholder
-            Rect rect = new Rect(getPhotoRect(i));
-            if (!Rect.intersects(fullRect, rect)) continue;
-            rect.offset(location.left, location.top);
-
-            int width = sc.getWidth();
-            int height = sc.getHeight();
-
-            int rotation = mModel.getImageRotation(i);
-            RawTexture texture;
-            if ((rotation % 180) == 0) {
-                texture = new RawTexture(width, height, true);
-                canvas.beginRenderTarget(texture);
-                canvas.translate(width / 2f, height / 2f);
-            } else {
-                texture = new RawTexture(height, width, true);
-                canvas.beginRenderTarget(texture);
-                canvas.translate(height / 2f, width / 2f);
-            }
-
-            canvas.rotate(rotation, 0, 0, 1);
-            canvas.translate(-width / 2f, -height / 2f);
-            sc.draw(canvas, 0, 0, width, height);
-            canvas.endRenderTarget();
-            effect.addEntry(item.getPath(), rect, texture);
-        }
-        return effect;
     }
 }

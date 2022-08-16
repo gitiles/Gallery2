@@ -26,11 +26,7 @@ import java.util.WeakHashMap;
 // It contains MediaItems and sub-MediaSets.
 //
 // The primary interface are:
-// getMediaItemCount(), getMediaItem() and
-// getSubMediaSetCount(), getSubMediaSet().
-//
-// getTotalMediaItemCount() returns the number of all MediaItems, including
-// those in sub-MediaSets.
+// getMediaItemCount(), getMediaItem().
 public abstract class MediaSet extends MediaObject {
     @SuppressWarnings("unused")
     private static final String TAG = "MediaSet";
@@ -71,48 +67,6 @@ public abstract class MediaSet extends MediaObject {
     // changed.
     public ArrayList<MediaItem> getMediaItem(int start, int count) {
         return new ArrayList<MediaItem>();
-    }
-
-    public MediaItem getCoverMediaItem() {
-        ArrayList<MediaItem> items = getMediaItem(0, 1);
-        if (items.size() > 0) return items.get(0);
-        for (int i = 0, n = getSubMediaSetCount(); i < n; i++) {
-            MediaItem cover = getSubMediaSet(i).getCoverMediaItem();
-            if (cover != null) return cover;
-        }
-        return null;
-    }
-
-    public int getSubMediaSetCount() {
-        return 0;
-    }
-
-    public MediaSet getSubMediaSet(int index) {
-        throw new IndexOutOfBoundsException();
-    }
-
-    public boolean isLeafAlbum() {
-        return false;
-    }
-
-    public boolean isCameraRoll() {
-        return false;
-    }
-
-    /**
-     * Method {@link #reload()} may process the loading task in background, this method tells
-     * its client whether the loading is still in process or not.
-     */
-    public boolean isLoading() {
-        return false;
-    }
-
-    public int getTotalMediaItemCount() {
-        int total = getMediaItemCount();
-        for (int i = 0, n = getSubMediaSetCount(); i < n; i++) {
-            total += getSubMediaSet(i).getTotalMediaItemCount();
-        }
-        return total;
     }
 
     // TODO: we should have better implementation of sub classes
@@ -174,58 +128,8 @@ public abstract class MediaSet extends MediaObject {
     // in the same thread as getMediaItem(int, int) and getSubMediaSet(int).
     public abstract long reload();
 
-    @Override
-    public MediaDetails getDetails() {
-        MediaDetails details = super.getDetails();
-        details.addDetail(MediaDetails.INDEX_TITLE, getName());
-        return details;
-    }
-
-    // Enumerate all media items in this media set (including the ones in sub
-    // media sets), in an efficient order. ItemConsumer.consumer() will be
-    // called for each media item with its index.
-    public void enumerateMediaItems(ItemConsumer consumer) {
-        enumerateMediaItems(consumer, 0);
-    }
-
-    public void enumerateTotalMediaItems(ItemConsumer consumer) {
-        enumerateTotalMediaItems(consumer, 0);
-    }
-
     public static interface ItemConsumer {
         void consume(int index, MediaItem item);
-    }
-
-    // The default implementation uses getMediaItem() for enumerateMediaItems().
-    // Subclasses may override this and use more efficient implementations.
-    // Returns the number of items enumerated.
-    protected int enumerateMediaItems(ItemConsumer consumer, int startIndex) {
-        int total = getMediaItemCount();
-        int start = 0;
-        while (start < total) {
-            int count = Math.min(MEDIAITEM_BATCH_FETCH_COUNT, total - start);
-            ArrayList<MediaItem> items = getMediaItem(start, count);
-            for (int i = 0, n = items.size(); i < n; i++) {
-                MediaItem item = items.get(i);
-                consumer.consume(startIndex + start + i, item);
-            }
-            start += count;
-        }
-        return total;
-    }
-
-    // Recursively enumerate all media items under this set.
-    // Returns the number of items enumerated.
-    protected int enumerateTotalMediaItems(
-            ItemConsumer consumer, int startIndex) {
-        int start = 0;
-        start += enumerateMediaItems(consumer, startIndex);
-        int m = getSubMediaSetCount();
-        for (int i = 0; i < m; i++) {
-            start += getSubMediaSet(i).enumerateTotalMediaItems(
-                    consumer, startIndex + start);
-        }
-        return start;
     }
 
     /**
@@ -265,84 +169,4 @@ public abstract class MediaSet extends MediaObject {
         @Override
         public void waitDone() {}
     };
-
-    protected Future<Integer> requestSyncOnMultipleSets(MediaSet[] sets, SyncListener listener) {
-        return new MultiSetSyncFuture(sets, listener);
-    }
-
-    private class MultiSetSyncFuture implements Future<Integer>, SyncListener {
-        @SuppressWarnings("hiding")
-        private static final String TAG = "Gallery.MultiSetSync";
-
-        private final SyncListener mListener;
-        private final Future<Integer> mFutures[];
-
-        private boolean mIsCancelled = false;
-        private int mResult = -1;
-        private int mPendingCount;
-
-        @SuppressWarnings("unchecked")
-        MultiSetSyncFuture(MediaSet[] sets, SyncListener listener) {
-            mListener = listener;
-            mPendingCount = sets.length;
-            mFutures = new Future[sets.length];
-
-            synchronized (this) {
-                for (int i = 0, n = sets.length; i < n; ++i) {
-                    mFutures[i] = sets[i].requestSync(this);
-                    Log.d(TAG, "  request sync: " + Utils.maskDebugInfo(sets[i].getName()));
-                }
-            }
-        }
-
-        @Override
-        public synchronized void cancel() {
-            if (mIsCancelled) return;
-            mIsCancelled = true;
-            for (Future<Integer> future : mFutures) future.cancel();
-            if (mResult < 0) mResult = SYNC_RESULT_CANCELLED;
-        }
-
-        @Override
-        public synchronized boolean isCancelled() {
-            return mIsCancelled;
-        }
-
-        @Override
-        public synchronized boolean isDone() {
-            return mPendingCount == 0;
-        }
-
-        @Override
-        public synchronized Integer get() {
-            waitDone();
-            return mResult;
-        }
-
-        @Override
-        public synchronized void waitDone() {
-            try {
-                while (!isDone()) wait();
-            } catch (InterruptedException e) {
-                Log.d(TAG, "waitDone() interrupted");
-            }
-        }
-
-        // SyncListener callback
-        @Override
-        public void onSyncDone(MediaSet mediaSet, int resultCode) {
-            SyncListener listener = null;
-            synchronized (this) {
-                if (resultCode == SYNC_RESULT_ERROR) mResult = SYNC_RESULT_ERROR;
-                --mPendingCount;
-                if (mPendingCount == 0) {
-                    listener = mListener;
-                    notifyAll();
-                }
-                Log.d(TAG, "onSyncDone: " + Utils.maskDebugInfo(mediaSet.getName())
-                        + " #pending=" + mPendingCount);
-            }
-            if (listener != null) listener.onSyncDone(MediaSet.this, mResult);
-        }
-    }
 }

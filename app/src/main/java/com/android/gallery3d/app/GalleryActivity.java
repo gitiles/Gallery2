@@ -18,10 +18,6 @@ package com.android.gallery3d.app;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.app.Dialog;
-import android.content.ContentResolver;
-import android.content.DialogInterface;
-import android.content.DialogInterface.OnCancelListener;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
@@ -31,35 +27,28 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
-import android.widget.Toast;
 
 import com.android.gallery3d.R;
 import com.android.gallery3d.common.Utils;
-import com.android.gallery3d.data.DataManager;
 import com.android.gallery3d.data.MediaItem;
-import com.android.gallery3d.data.MediaSet;
-import com.android.gallery3d.data.Path;
-import com.android.gallery3d.picasasource.PicasaSource;
 import com.android.gallery3d.util.GalleryUtils;
 import com.codemx.rxpermission.RxPermissions;
 
 import androidx.annotation.RequiresApi;
 import io.reactivex.functions.Consumer;
 
-public final class GalleryActivity extends AbstractGalleryActivity implements OnCancelListener {
-    public static final String EXTRA_SLIDESHOW = "slideshow";
-    public static final String EXTRA_DREAM = "dream";
-    public static final String EXTRA_CROP = "crop";
+public final class GalleryActivity extends AbstractGalleryActivity {
+    private static final String TAG = "GalleryActivity";
+//    public static final String EXTRA_SLIDESHOW = "slideshow";
+//    public static final String EXTRA_DREAM = "dream";
+//    public static final String EXTRA_CROP = "crop";
 
-    public static final String ACTION_REVIEW = "com.android.camera.action.REVIEW";
-    public static final String KEY_GET_CONTENT = "get-content";
+//    public static final String ACTION_REVIEW = "com.android.camera.action.REVIEW";
+//    public static final String KEY_GET_CONTENT = "get-content";
     public static final String KEY_GET_ALBUM = "get-album";
     public static final String KEY_TYPE_BITS = "type-bits";
     public static final String KEY_MEDIA_TYPES = "mediaTypes";
     public static final String KEY_DISMISS_KEYGUARD = "dismiss-keyguard";
-
-    private static final String TAG = "GalleryActivity";
-    private Dialog mVersionCheckDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -106,50 +95,34 @@ public final class GalleryActivity extends AbstractGalleryActivity implements On
     private void initializeByIntent() {
         Intent intent = getIntent();
         String action = intent.getAction();
-
-        if (Intent.ACTION_GET_CONTENT.equalsIgnoreCase(action)) {
-            startGetContent(intent);
-        } else if (Intent.ACTION_PICK.equalsIgnoreCase(action)) {
-            // We do NOT really support the PICK intent. Handle it as
-            // the GET_CONTENT. However, we need to translate the type
-            // in the intent here.
-            Log.w(TAG, "action PICK is not supported");
-            String type = Utils.ensureNotNull(intent.getType());
-            if (type.startsWith("vnd.android.cursor.dir/")) {
-                if (type.endsWith("/image")) intent.setType("image/*");
-                if (type.endsWith("/video")) intent.setType("video/*");
-            }
-            startGetContent(intent);
-        } else if (Intent.ACTION_VIEW.equalsIgnoreCase(action)
-                || ACTION_REVIEW.equalsIgnoreCase(action)){
-            startViewAction(intent);
-        } else {
+//
+//        if (Intent.ACTION_GET_CONTENT.equalsIgnoreCase(action)) {
+//            startGetContent(intent);
+//        } else if (Intent.ACTION_PICK.equalsIgnoreCase(action)) {
+//            // We do NOT really support the PICK intent. Handle it as
+//            // the GET_CONTENT. However, we need to translate the type
+//            // in the intent here.
+//            Log.w(TAG, "action PICK is not supported");
+//            String type = Utils.ensureNotNull(intent.getType());
+//            if (type.startsWith("vnd.android.cursor.dir/")) {
+//                if (type.endsWith("/image")) intent.setType("image/*");
+//                if (type.endsWith("/video")) intent.setType("video/*");
+//            }
+//            startGetContent(intent);
+//        } else if (Intent.ACTION_VIEW.equalsIgnoreCase(action)
+//                || ACTION_REVIEW.equalsIgnoreCase(action)){
+//            startViewAction(intent);
+//        } else
+        {
             startDefaultPage();
         }
     }
 
     public void startDefaultPage() {
-        PicasaSource.showSignInReminder(this);
         Bundle data = new Bundle();
-        data.putString(AlbumSetPage.KEY_MEDIA_PATH,
-                getDataManager().getTopSetPath(DataManager.INCLUDE_ALL));
-        getStateManager().startState(AlbumSetPage.class, data);
-        mVersionCheckDialog = PicasaSource.getVersionCheckDialog(this);
-        if (mVersionCheckDialog != null) {
-            mVersionCheckDialog.setOnCancelListener(this);
-        }
-    }
-
-    private void startGetContent(Intent intent) {
-        Bundle data = intent.getExtras() != null
-                ? new Bundle(intent.getExtras())
-                : new Bundle();
-        data.putBoolean(KEY_GET_CONTENT, true);
-        int typeBits = GalleryUtils.determineTypeBits(this, intent);
-        data.putInt(KEY_TYPE_BITS, typeBits);
-        data.putString(AlbumSetPage.KEY_MEDIA_PATH,
-                getDataManager().getTopSetPath(typeBits));
-        getStateManager().startState(AlbumSetPage.class, data);
+        data.putString(AlbumPage.KEY_MEDIA_PATH, "/local/image/-1739773001"
+                /*getDataManager().getTopSetPath(DataManager.INCLUDE_LOCAL_IMAGE_ONLY)*/);
+        getStateManager().startState(AlbumPage.class, data);
     }
 
     private String getContentType(Intent intent) {
@@ -168,117 +141,15 @@ public final class GalleryActivity extends AbstractGalleryActivity implements On
         }
     }
 
-    private void startViewAction(Intent intent) {
-        Boolean slideshow = intent.getBooleanExtra(EXTRA_SLIDESHOW, false);
-        if (slideshow) {
-            getActionBar().hide();
-            DataManager manager = getDataManager();
-            Path path = manager.findPathByUri(intent.getData(), intent.getType());
-            if (path == null || manager.getMediaObject(path)
-                    instanceof MediaItem) {
-                path = Path.fromString(
-                        manager.getTopSetPath(DataManager.INCLUDE_IMAGE));
-            }
-            Bundle data = new Bundle();
-            data.putString(SlideshowPage.KEY_SET_PATH, path.toString());
-            data.putBoolean(SlideshowPage.KEY_RANDOM_ORDER, true);
-            data.putBoolean(SlideshowPage.KEY_REPEAT, true);
-            if (intent.getBooleanExtra(EXTRA_DREAM, false)) {
-                data.putBoolean(SlideshowPage.KEY_DREAM, true);
-            }
-            getStateManager().startState(SlideshowPage.class, data);
-        } else {
-            Bundle data = new Bundle();
-            DataManager dm = getDataManager();
-            Uri uri = intent.getData();
-            String contentType = getContentType(intent);
-            if (contentType == null) {
-                Toast.makeText(this,
-                        R.string.no_such_item, Toast.LENGTH_LONG).show();
-                finish();
-                return;
-            }
-            if (uri == null) {
-                int typeBits = GalleryUtils.determineTypeBits(this, intent);
-                data.putInt(KEY_TYPE_BITS, typeBits);
-                data.putString(AlbumSetPage.KEY_MEDIA_PATH,
-                        getDataManager().getTopSetPath(typeBits));
-                getStateManager().startState(AlbumSetPage.class, data);
-            } else if (contentType.startsWith(
-                    ContentResolver.CURSOR_DIR_BASE_TYPE)) {
-                int mediaType = intent.getIntExtra(KEY_MEDIA_TYPES, 0);
-                if (mediaType != 0) {
-                    uri = uri.buildUpon().appendQueryParameter(
-                            KEY_MEDIA_TYPES, String.valueOf(mediaType))
-                            .build();
-                }
-                Path setPath = dm.findPathByUri(uri, null);
-                MediaSet mediaSet = null;
-                if (setPath != null) {
-                    mediaSet = (MediaSet) dm.getMediaObject(setPath);
-                }
-                if (mediaSet != null) {
-                    if (mediaSet.isLeafAlbum()) {
-                        data.putString(AlbumPage.KEY_MEDIA_PATH, setPath.toString());
-                        data.putString(AlbumPage.KEY_PARENT_MEDIA_PATH,
-                                dm.getTopSetPath(DataManager.INCLUDE_ALL));
-                        getStateManager().startState(AlbumPage.class, data);
-                    } else {
-                        data.putString(AlbumSetPage.KEY_MEDIA_PATH, setPath.toString());
-                        getStateManager().startState(AlbumSetPage.class, data);
-                    }
-                } else {
-                    startDefaultPage();
-                }
-            } else {
-                Path itemPath = dm.findPathByUri(uri, contentType);
-                Path albumPath = dm.getDefaultSetOf(itemPath);
-
-                data.putString(PhotoPage.KEY_MEDIA_ITEM_PATH, itemPath.toString());
-                data.putBoolean(PhotoPage.KEY_READONLY, true);
-
-                // TODO: Make the parameter "SingleItemOnly" public so other
-                //       activities can reference it.
-                boolean singleItemOnly = (albumPath == null)
-                        || intent.getBooleanExtra("SingleItemOnly", false);
-                if (!singleItemOnly) {
-                    data.putString(PhotoPage.KEY_MEDIA_SET_PATH, albumPath.toString());
-                    // when FLAG_ACTIVITY_NEW_TASK is set, (e.g. when intent is fired
-                    // from notification), back button should behave the same as up button
-                    // rather than taking users back to the home screen
-                    if (intent.getBooleanExtra(PhotoPage.KEY_TREAT_BACK_AS_UP, false)
-                            || ((intent.getFlags() & Intent.FLAG_ACTIVITY_NEW_TASK) != 0)) {
-                        data.putBoolean(PhotoPage.KEY_TREAT_BACK_AS_UP, true);
-                    }
-                }
-
-                getStateManager().startState(SinglePhotoPage.class, data);
-            }
-        }
-    }
-
     @Override
     protected void onResume() {
         Utils.assertTrue(getStateManager().getStateCount() > 0);
         super.onResume();
-        if (mVersionCheckDialog != null) {
-            mVersionCheckDialog.show();
-        }
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        if (mVersionCheckDialog != null) {
-            mVersionCheckDialog.dismiss();
-        }
-    }
-
-    @Override
-    public void onCancel(DialogInterface dialog) {
-        if (dialog == mVersionCheckDialog) {
-            mVersionCheckDialog = null;
-        }
     }
 
     @Override

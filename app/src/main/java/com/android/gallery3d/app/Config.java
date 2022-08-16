@@ -20,7 +20,6 @@ import android.content.Context;
 import android.content.res.Resources;
 
 import com.android.gallery3d.R;
-import com.android.gallery3d.ui.AlbumSetSlotRenderer;
 import com.android.gallery3d.ui.SlotView;
 
 final class Config {
@@ -28,7 +27,7 @@ final class Config {
         private static AlbumSetPage sInstance;
 
         public SlotView.Spec slotViewSpec;
-        public AlbumSetSlotRenderer.LabelSpec labelSpec;
+//        public AlbumSetSlotRenderer.LabelSpec labelSpec;
         public int paddingTop;
         public int paddingBottom;
         public int placeholderColor;
@@ -54,27 +53,27 @@ final class Config {
             paddingTop = r.getDimensionPixelSize(R.dimen.albumset_padding_top);
             paddingBottom = r.getDimensionPixelSize(R.dimen.albumset_padding_bottom);
 
-            labelSpec = new AlbumSetSlotRenderer.LabelSpec();
-            labelSpec.labelBackgroundHeight = r.getDimensionPixelSize(
-                    R.dimen.albumset_label_background_height);
-            labelSpec.titleOffset = r.getDimensionPixelSize(
-                    R.dimen.albumset_title_offset);
-            labelSpec.countOffset = r.getDimensionPixelSize(
-                    R.dimen.albumset_count_offset);
-            labelSpec.titleFontSize = r.getDimensionPixelSize(
-                    R.dimen.albumset_title_font_size);
-            labelSpec.countFontSize = r.getDimensionPixelSize(
-                    R.dimen.albumset_count_font_size);
-            labelSpec.leftMargin = r.getDimensionPixelSize(
-                    R.dimen.albumset_left_margin);
-            labelSpec.titleRightMargin = r.getDimensionPixelSize(
-                    R.dimen.albumset_title_right_margin);
-            labelSpec.iconSize = r.getDimensionPixelSize(
-                    R.dimen.albumset_icon_size);
-            labelSpec.backgroundColor = r.getColor(
-                    R.color.albumset_label_background);
-            labelSpec.titleColor = r.getColor(R.color.albumset_label_title);
-            labelSpec.countColor = r.getColor(R.color.albumset_label_count);
+//            labelSpec = new AlbumSetSlotRenderer.LabelSpec();
+//            labelSpec.labelBackgroundHeight = r.getDimensionPixelSize(
+//                    R.dimen.albumset_label_background_height);
+//            labelSpec.titleOffset = r.getDimensionPixelSize(
+//                    R.dimen.albumset_title_offset);
+//            labelSpec.countOffset = r.getDimensionPixelSize(
+//                    R.dimen.albumset_count_offset);
+//            labelSpec.titleFontSize = r.getDimensionPixelSize(
+//                    R.dimen.albumset_title_font_size);
+//            labelSpec.countFontSize = r.getDimensionPixelSize(
+//                    R.dimen.albumset_count_font_size);
+//            labelSpec.leftMargin = r.getDimensionPixelSize(
+//                    R.dimen.albumset_left_margin);
+//            labelSpec.titleRightMargin = r.getDimensionPixelSize(
+//                    R.dimen.albumset_title_right_margin);
+//            labelSpec.iconSize = r.getDimensionPixelSize(
+//                    R.dimen.albumset_icon_size);
+//            labelSpec.backgroundColor = r.getColor(
+//                    R.color.albumset_label_background);
+//            labelSpec.titleColor = r.getColor(R.color.albumset_label_title);
+//            labelSpec.countColor = r.getColor(R.color.albumset_label_count);
         }
     }
 
@@ -97,30 +96,9 @@ final class Config {
             placeholderColor = r.getColor(R.color.album_placeholder);
 
             slotViewSpec = new SlotView.Spec();
-            slotViewSpec.rowsLand = r.getInteger(R.integer.album_rows_land);
-            slotViewSpec.rowsPort = r.getInteger(R.integer.album_rows_port);
+            slotViewSpec.rowsLand = 2; // r.getInteger(R.integer.album_rows_land);
+            slotViewSpec.rowsPort = 2; // r.getInteger(R.integer.album_rows_port);
             slotViewSpec.slotGap = r.getDimensionPixelSize(R.dimen.album_slot_gap);
-        }
-    }
-
-    public static class ManageCachePage extends AlbumSetPage {
-        private static ManageCachePage sInstance;
-
-        public final int cachePinSize;
-        public final int cachePinMargin;
-
-        public static synchronized ManageCachePage get(Context context) {
-            if (sInstance == null) {
-                sInstance = new ManageCachePage(context);
-            }
-            return sInstance;
-        }
-
-        public ManageCachePage(Context context) {
-            super(context);
-            Resources r = context.getResources();
-            cachePinSize = r.getDimensionPixelSize(R.dimen.cache_pin_size);
-            cachePinMargin = r.getDimensionPixelSize(R.dimen.cache_pin_margin);
         }
     }
 }

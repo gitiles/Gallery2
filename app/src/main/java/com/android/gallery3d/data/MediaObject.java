@@ -54,27 +54,11 @@ public abstract class MediaObject {
     public static final String MEDIA_TYPE_VIDEO_STRING = "video";
     public static final String MEDIA_TYPE_ALL_STRING = "all";
 
-    // These are flags for cache() and return values for getCacheFlag():
-    public static final int CACHE_FLAG_NO = 0;
-    public static final int CACHE_FLAG_SCREENNAIL = 1;
-    public static final int CACHE_FLAG_FULL = 2;
-
-    // These are return values for getCacheStatus():
-    public static final int CACHE_STATUS_NOT_CACHED = 0;
-    public static final int CACHE_STATUS_CACHING = 1;
-    public static final int CACHE_STATUS_CACHED_SCREENNAIL = 2;
-    public static final int CACHE_STATUS_CACHED_FULL = 3;
-
     private static long sVersionSerial = 0;
 
     protected long mDataVersion;
 
     protected final Path mPath;
-
-    public interface PanoramaSupportCallback {
-        void panoramaInfoAvailable(MediaObject mediaObject, boolean isPanorama,
-                boolean isPanorama360);
-    }
 
     public MediaObject(Path path, long version) {
         path.setObject(this);
@@ -90,21 +74,6 @@ public abstract class MediaObject {
         return 0;
     }
 
-    public void getPanoramaSupport(PanoramaSupportCallback callback) {
-        callback.panoramaInfoAvailable(this, false, false);
-    }
-
-    public void clearCachedPanoramaSupport() {
-    }
-
-    public void delete() {
-        throw new UnsupportedOperationException();
-    }
-
-    public void rotate(int degrees) {
-        throw new UnsupportedOperationException();
-    }
-
     public Uri getContentUri() {
         String className = getClass().getName();
         Log.e(TAG, "Class " + className + "should implement getContentUri.");
@@ -112,37 +81,12 @@ public abstract class MediaObject {
         throw new UnsupportedOperationException();
     }
 
-    public Uri getPlayUri() {
-        throw new UnsupportedOperationException();
-    }
-
     public int getMediaType() {
         return MEDIA_TYPE_UNKNOWN;
     }
 
-    public MediaDetails getDetails() {
-        MediaDetails details = new MediaDetails();
-        return details;
-    }
-
     public long getDataVersion() {
         return mDataVersion;
-    }
-
-    public int getCacheFlag() {
-        return CACHE_FLAG_NO;
-    }
-
-    public int getCacheStatus() {
-        throw new UnsupportedOperationException();
-    }
-
-    public long getCacheSize() {
-        throw new UnsupportedOperationException();
-    }
-
-    public void cache(int flag) {
-        throw new UnsupportedOperationException();
     }
 
     public static synchronized long nextVersionNumber() {

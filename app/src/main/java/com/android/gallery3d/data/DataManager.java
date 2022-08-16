@@ -22,12 +22,9 @@ import android.net.Uri;
 import android.os.Handler;
 
 import com.android.gallery3d.app.GalleryApp;
-import com.android.gallery3d.app.StitchingChangeListener;
 import com.android.gallery3d.common.Utils;
-import com.android.gallery3d.data.MediaObject.PanoramaSupportCallback;
 import com.android.gallery3d.data.MediaSet.ItemConsumer;
 import com.android.gallery3d.data.MediaSource.PathId;
-import com.android.gallery3d.picasasource.PicasaSource;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -49,7 +46,7 @@ import java.util.WeakHashMap;
 // path. And it's used to identify a specific media set even if the process is
 // killed and re-created, so child keys should be stable identifiers.
 
-public class DataManager implements StitchingChangeListener {
+public class DataManager /*TONY implements StitchingChangeListener*/ {
     public static final int INCLUDE_IMAGE = 1;
     public static final int INCLUDE_VIDEO = 2;
     public static final int INCLUDE_ALL = INCLUDE_IMAGE | INCLUDE_VIDEO;
@@ -73,12 +70,12 @@ public class DataManager implements StitchingChangeListener {
     private static final String TAG = "DataManager";
 
     // This is the path for the media set seen by the user at top level.
-    private static final String TOP_SET_PATH = "/combo/{/local/all,/picasa/all}";
+    private static final String TOP_SET_PATH = "/combo/{/local/all}";
 
-    private static final String TOP_IMAGE_SET_PATH = "/combo/{/local/image,/picasa/image}";
+    private static final String TOP_IMAGE_SET_PATH = "/combo/{/local/image}";
 
     private static final String TOP_VIDEO_SET_PATH =
-            "/combo/{/local/video,/picasa/video}";
+            "/combo/{/local/video}";
 
     private static final String TOP_LOCAL_SET_PATH = "/local/all";
 
@@ -118,13 +115,13 @@ public class DataManager implements StitchingChangeListener {
 
         // the order matters, the UriSource must come last
         addSource(new LocalSource(mApplication));
-        addSource(new PicasaSource(mApplication));
-        addSource(new ComboSource(mApplication));
-        addSource(new ClusterSource(mApplication));
-        addSource(new FilterSource(mApplication));
-        addSource(new SecureSource(mApplication));
-        addSource(new UriSource(mApplication));
-        addSource(new SnailSource(mApplication));
+        // TONY addSource(new PicasaSource(mApplication));
+//        addSource(new ComboSource(mApplication));
+//        addSource(new ClusterSource(mApplication));
+//        addSource(new FilterSource(mApplication));
+        // addSource(new SecureSource(mApplication));
+//        addSource(new UriSource(mApplication));
+//        addSource(new SnailSource(mApplication));
 
         if (mActiveCount > 0) {
             for (MediaSource source : mSourceMap.values()) {
@@ -245,18 +242,6 @@ public class DataManager implements StitchingChangeListener {
         return getMediaObject(path).getSupportedOperations();
     }
 
-    public void getPanoramaSupport(Path path, PanoramaSupportCallback callback) {
-        getMediaObject(path).getPanoramaSupport(callback);
-    }
-
-    public void delete(Path path) {
-        getMediaObject(path).delete();
-    }
-
-    public void rotate(Path path, int degrees) {
-        getMediaObject(path).rotate(degrees);
-    }
-
     public Uri getContentUri(Path path) {
         return getMediaObject(path).getContentUri();
     }
@@ -346,26 +331,5 @@ public class DataManager implements StitchingChangeListener {
                 notifier.onChange(selfChange);
             }
         }
-    }
-
-    @Override
-    public void onStitchingQueued(Uri uri) {
-        // Do nothing.
-    }
-
-    @Override
-    public void onStitchingResult(Uri uri) {
-        Path path = findPathByUri(uri, null);
-        if (path != null) {
-            MediaObject mediaObject = getMediaObject(path);
-            if (mediaObject != null) {
-                mediaObject.clearCachedPanoramaSupport();
-            }
-        }
-    }
-
-    @Override
-    public void onStitchingProgress(Uri uri, int progress) {
-        // Do nothing.
     }
 }

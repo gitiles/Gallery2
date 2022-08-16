@@ -24,9 +24,6 @@ import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import androidx.core.app.JobIntentService;
 
-import com.android.gallery3d.picasasource.PicasaSource;
-import com.android.gallery3d.util.LightCycleHelper;
-
 public class PackagesMonitor extends BroadcastReceiver {
     public static final String KEY_PACKAGES_VERSION  = "packages-version";
 
@@ -64,11 +61,11 @@ public class PackagesMonitor extends BroadcastReceiver {
         String action = intent.getAction();
         String packageName = intent.getData().getSchemeSpecificPart();
         if (Intent.ACTION_PACKAGE_ADDED.equals(action)) {
-            PicasaSource.onPackageAdded(context, packageName);
+            // TONY PicasaSource.onPackageAdded(context, packageName);
         } else if (Intent.ACTION_PACKAGE_REMOVED.equals(action)) {
-            PicasaSource.onPackageRemoved(context, packageName);
+            // TONY PicasaSource.onPackageRemoved(context, packageName);
         } else if (Intent.ACTION_PACKAGE_CHANGED.equals(action)) {
-            PicasaSource.onPackageChanged(context, packageName);
+            // TONY PicasaSource.onPackageChanged(context, packageName);
         }
     }
 }

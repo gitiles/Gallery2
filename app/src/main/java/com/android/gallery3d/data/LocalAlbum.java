@@ -58,44 +58,37 @@ public class LocalAlbum extends MediaSet {
     private final Path mItemPath;
     private int mCachedCount = INVALID_COUNT;
 
-    public LocalAlbum(Path path, GalleryApp application, int bucketId,
-            boolean isImage, String name) {
+    public LocalAlbum(Path path, GalleryApp application, int bucketId, String name) {
         super(path, nextVersionNumber());
         mApplication = application;
         mResolver = application.getContentResolver();
         mBucketId = bucketId;
         mName = name;
-        mIsImage = isImage;
+        mIsImage = true;
 
-        if (isImage) {
+
             mWhereClause = ImageColumns.BUCKET_ID + " = ?";
             mOrderClause = ImageColumns.DATE_TAKEN + " DESC, "
                     + ImageColumns._ID + " DESC";
             mBaseUri = Images.Media.EXTERNAL_CONTENT_URI;
             mProjection = LocalImage.PROJECTION;
             mItemPath = LocalImage.ITEM_PATH;
-        } else {
-            mWhereClause = VideoColumns.BUCKET_ID + " = ?";
-            mOrderClause = VideoColumns.DATE_TAKEN + " DESC, "
-                    + VideoColumns._ID + " DESC";
-            mBaseUri = Video.Media.EXTERNAL_CONTENT_URI;
-            mProjection = LocalVideo.PROJECTION;
-            mItemPath = LocalVideo.ITEM_PATH;
-        }
+        //} else {
+//            mWhereClause = VideoColumns.BUCKET_ID + " = ?";
+//            mOrderClause = VideoColumns.DATE_TAKEN + " DESC, "
+//                    + VideoColumns._ID + " DESC";
+   //         mBaseUri = Video.Media.EXTERNAL_CONTENT_URI;
+//            mProjection = LocalVideo.PROJECTION;
+//            mItemPath = LocalVideo.ITEM_PATH;
+   //     }
 
         mNotifier = new ChangeNotifier(this, mBaseUri, application);
     }
 
-    public LocalAlbum(Path path, GalleryApp application, int bucketId,
-            boolean isImage) {
-        this(path, application, bucketId, isImage,
+    public LocalAlbum(Path path, GalleryApp application, int bucketId) {
+        this(path, application, bucketId,
                 BucketHelper.getBucketName(
                 application.getContentResolver(), bucketId));
-    }
-
-    @Override
-    public boolean isCameraRoll() {
-        return mBucketId == MediaSetUtils.CAMERA_BUCKET_ID;
     }
 
     @Override
@@ -132,7 +125,7 @@ public class LocalAlbum extends MediaSet {
                 int id = cursor.getInt(0);  // _id must be in the first column
                 Path childPath = mItemPath.getChild(id);
                 MediaItem item = loadOrUpdateItem(childPath, cursor,
-                        dataManager, mApplication, mIsImage);
+                        dataManager, mApplication);
                 list.add(item);
             }
         } finally {
@@ -142,15 +135,15 @@ public class LocalAlbum extends MediaSet {
     }
 
     private static MediaItem loadOrUpdateItem(Path path, Cursor cursor,
-            DataManager dataManager, GalleryApp app, boolean isImage) {
+            DataManager dataManager, GalleryApp app) {
         synchronized (DataManager.LOCK) {
             LocalMediaItem item = (LocalMediaItem) dataManager.peekMediaObject(path);
             if (item == null) {
-                if (isImage) {
+//                if (isImage) {
                     item = new LocalImage(path, app, cursor);
-                } else {
-                    item = new LocalVideo(path, app, cursor);
-                }
+//                } else {
+//                    //item = new LocalVideo(path, app, cursor);
+//                }
             } else {
                 item.updateContent(cursor);
             }
@@ -160,7 +153,7 @@ public class LocalAlbum extends MediaSet {
 
     // The pids array are sorted by the (path) id.
     public static MediaItem[] getMediaItemById(
-            GalleryApp application, boolean isImage, ArrayList<Integer> ids) {
+            GalleryApp application, ArrayList<Integer> ids) {
         // get the lower and upper bound of (path) id
         MediaItem[] result = new MediaItem[ids.size()];
         if (ids.isEmpty()) return result;
@@ -171,15 +164,15 @@ public class LocalAlbum extends MediaSet {
         Uri baseUri;
         String[] projection;
         Path itemPath;
-        if (isImage) {
+//        if (isImage) {
             baseUri = Images.Media.EXTERNAL_CONTENT_URI;
             projection = LocalImage.PROJECTION;
             itemPath = LocalImage.ITEM_PATH;
-        } else {
-            baseUri = Video.Media.EXTERNAL_CONTENT_URI;
-            projection = LocalVideo.PROJECTION;
-            itemPath = LocalVideo.ITEM_PATH;
-        }
+//        } else {
+////            baseUri = Video.Media.EXTERNAL_CONTENT_URI;
+////            projection = LocalVideo.PROJECTION;
+////            itemPath = LocalVideo.ITEM_PATH;
+//        }
 
         ContentResolver resolver = application.getContentResolver();
         DataManager dataManager = application.getDataManager();
@@ -210,7 +203,7 @@ public class LocalAlbum extends MediaSet {
 
                 Path childPath = itemPath.getChild(id);
                 MediaItem item = loadOrUpdateItem(childPath, cursor, dataManager,
-                        application, isImage);
+                        application);
                 result[i] = item;
                 ++i;
             }
@@ -265,31 +258,21 @@ public class LocalAlbum extends MediaSet {
         return SUPPORT_DELETE | SUPPORT_SHARE | SUPPORT_INFO;
     }
 
-    @Override
-    public void delete() {
-        GalleryUtils.assertNotInRenderThread();
-        mResolver.delete(mBaseUri, mWhereClause,
-                new String[]{String.valueOf(mBucketId)});
-    }
-
-    @Override
-    public boolean isLeafAlbum() {
-        return true;
-    }
-
     public static String getLocalizedName(Resources res, int bucketId,
             String name) {
         if (bucketId == MediaSetUtils.CAMERA_BUCKET_ID) {
             return res.getString(R.string.folder_camera);
-        } else if (bucketId == MediaSetUtils.DOWNLOAD_BUCKET_ID) {
-            return res.getString(R.string.folder_download);
-        } else if (bucketId == MediaSetUtils.IMPORTED_BUCKET_ID) {
-            return res.getString(R.string.folder_imported);
-        } else if (bucketId == MediaSetUtils.SNAPSHOT_BUCKET_ID) {
-            return res.getString(R.string.folder_screenshot);
-        } else if (bucketId == MediaSetUtils.EDITED_ONLINE_PHOTOS_BUCKET_ID) {
-            return res.getString(R.string.folder_edited_online_photos);
-        } else {
+        }
+//        else if (bucketId == MediaSetUtils.DOWNLOAD_BUCKET_ID) {
+//            return res.getString(R.string.folder_download);
+//        } else if (bucketId == MediaSetUtils.IMPORTED_BUCKET_ID) {
+//            return res.getString(R.string.folder_imported);
+//        } else if (bucketId == MediaSetUtils.SNAPSHOT_BUCKET_ID) {
+//            return res.getString(R.string.folder_screenshot);
+//        } else if (bucketId == MediaSetUtils.EDITED_ONLINE_PHOTOS_BUCKET_ID) {
+//            return res.getString(R.string.folder_edited_online_photos);
+//        }
+        else {
             return name;
         }
     }
@@ -299,15 +282,17 @@ public class LocalAlbum extends MediaSet {
         String relativePath = "/";
         if (bucketId == MediaSetUtils.CAMERA_BUCKET_ID) {
             relativePath += BucketNames.CAMERA;
-        } else if (bucketId == MediaSetUtils.DOWNLOAD_BUCKET_ID) {
-            relativePath += BucketNames.DOWNLOAD;
-        } else if (bucketId == MediaSetUtils.IMPORTED_BUCKET_ID) {
-            relativePath += BucketNames.IMPORTED;
-        } else if (bucketId == MediaSetUtils.SNAPSHOT_BUCKET_ID) {
-            relativePath += BucketNames.SCREENSHOTS;
-        } else if (bucketId == MediaSetUtils.EDITED_ONLINE_PHOTOS_BUCKET_ID) {
-            relativePath += BucketNames.EDITED_ONLINE_PHOTOS;
-        } else {
+        }
+//        else if (bucketId == MediaSetUtils.DOWNLOAD_BUCKET_ID) {
+//            relativePath += BucketNames.DOWNLOAD;
+//        } else if (bucketId == MediaSetUtils.IMPORTED_BUCKET_ID) {
+//            relativePath += BucketNames.IMPORTED;
+//        } else if (bucketId == MediaSetUtils.SNAPSHOT_BUCKET_ID) {
+//            relativePath += BucketNames.SCREENSHOTS;
+//        } else if (bucketId == MediaSetUtils.EDITED_ONLINE_PHOTOS_BUCKET_ID) {
+//            relativePath += BucketNames.EDITED_ONLINE_PHOTOS;
+//        }
+        else {
             // If the first few cases didn't hit the matching path, do a
             // thorough search in the local directories.
             File extStorage = Environment.getExternalStorageDirectory();

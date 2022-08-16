@@ -40,13 +40,13 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-        <com.android.photos.views.HeaderGridView android:id="@android:id/list"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:choiceMode="multipleChoiceModal"
-                android:numColumns="auto_fit"
-                android:stretchMode="columnWidth"
-                android:drawSelectorOnTop="true" />
+<!--        <com.android.photos.views.HeaderGridView android:id="@android:id/list"-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="match_parent"-->
+<!--                android:choiceMode="multipleChoiceModal"-->
+<!--                android:numColumns="auto_fit"-->
+<!--                android:stretchMode="columnWidth"-->
+<!--                android:drawSelectorOnTop="true" />-->
         <TextView android:id="@android:id/empty"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"

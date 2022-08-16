@@ -16,59 +16,30 @@
 
 package com.android.gallery3d.app;
 
-import android.annotation.TargetApi;
 import android.app.Activity;
-import android.app.AlertDialog;
-import android.content.BroadcastReceiver;
-import android.content.ComponentName;
 import android.content.Context;
-import android.content.DialogInterface;
-import android.content.DialogInterface.OnCancelListener;
-import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
-import android.content.IntentFilter;
-import android.content.ServiceConnection;
 import android.content.res.Configuration;
-import android.net.Uri;
 import android.os.Bundle;
-import android.os.IBinder;
-import androidx.print.PrintHelper;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.Window;
 import android.view.WindowManager;
 
 import com.android.gallery3d.R;
-import com.android.gallery3d.common.ApiHelper;
 import com.android.gallery3d.data.DataManager;
 import com.android.gallery3d.data.MediaItem;
-import com.android.gallery3d.filtershow.cache.ImageLoader;
 import com.android.gallery3d.ui.GLRoot;
 import com.android.gallery3d.ui.GLRootView;
-import com.android.gallery3d.util.PanoramaViewHelper;
 import com.android.gallery3d.util.ThreadPool;
-import com.android.photos.data.GalleryBitmapPool;
-
-import java.io.FileNotFoundException;
+import com.android.gallery3d.data.GalleryBitmapPool;
 
 public class AbstractGalleryActivity extends Activity implements GalleryContext {
     private static final String TAG = "AbstractGalleryActivity";
     private GLRootView mGLRootView;
     private StateManager mStateManager;
-    private GalleryActionBar mActionBar;
     private OrientationManager mOrientationManager;
     private TransitionStore mTransitionStore = new TransitionStore();
     private boolean mDisableToggleStatusBar;
-    private PanoramaViewHelper mPanoramaViewHelper;
-
-    private AlertDialog mAlertDialog = null;
-    private BroadcastReceiver mMountReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            if (getExternalCacheDir() != null) onStorageReady();
-        }
-    };
-    private IntentFilter mMountFilter = new IntentFilter(Intent.ACTION_MEDIA_MOUNTED);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,9 +47,6 @@ public class AbstractGalleryActivity extends Activity implements GalleryContext 
         mOrientationManager = new OrientationManager(this);
         toggleStatusBarByOrientation();
         getWindow().setBackgroundDrawable(null);
-        mPanoramaViewHelper = new PanoramaViewHelper(this);
-        mPanoramaViewHelper.onCreate();
-        doBindBatchService();
     }
 
     @Override
@@ -96,15 +64,7 @@ public class AbstractGalleryActivity extends Activity implements GalleryContext 
     public void onConfigurationChanged(Configuration config) {
         super.onConfigurationChanged(config);
         mStateManager.onConfigurationChange(config);
-        getGalleryActionBar().onConfigurationChanged();
-        invalidateOptionsMenu();
         toggleStatusBarByOrientation();
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        super.onCreateOptionsMenu(menu);
-        return getStateManager().createOptionsMenu(menu);
     }
 
     @Override
@@ -143,61 +103,14 @@ public class AbstractGalleryActivity extends Activity implements GalleryContext 
         mGLRootView = (GLRootView) findViewById(R.id.gl_root_view);
     }
 
-    protected void onStorageReady() {
-        if (mAlertDialog != null) {
-            mAlertDialog.dismiss();
-            mAlertDialog = null;
-            unregisterReceiver(mMountReceiver);
-        }
-    }
-
     @Override
     protected void onStart() {
         super.onStart();
-        if (getExternalCacheDir() == null) {
-            OnCancelListener onCancel = new OnCancelListener() {
-                @Override
-                public void onCancel(DialogInterface dialog) {
-                    finish();
-                }
-            };
-            OnClickListener onClick = new OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    dialog.cancel();
-                }
-            };
-            AlertDialog.Builder builder = new AlertDialog.Builder(this)
-                    .setTitle(R.string.no_external_storage_title)
-                    .setMessage(R.string.no_external_storage)
-                    .setNegativeButton(android.R.string.cancel, onClick)
-                    .setOnCancelListener(onCancel);
-            if (ApiHelper.HAS_SET_ICON_ATTRIBUTE) {
-                setAlertDialogIconAttribute(builder);
-            } else {
-                builder.setIcon(android.R.drawable.ic_dialog_alert);
-            }
-            mAlertDialog = builder.show();
-            registerReceiver(mMountReceiver, mMountFilter);
-        }
-        mPanoramaViewHelper.onStart();
-    }
-
-    @TargetApi(ApiHelper.VERSION_CODES.HONEYCOMB)
-    private static void setAlertDialogIconAttribute(
-            AlertDialog.Builder builder) {
-        builder.setIconAttribute(android.R.attr.alertDialogIcon);
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        if (mAlertDialog != null) {
-            unregisterReceiver(mMountReceiver);
-            mAlertDialog.dismiss();
-            mAlertDialog = null;
-        }
-        mPanoramaViewHelper.onStop();
     }
 
     @Override
@@ -239,7 +152,6 @@ public class AbstractGalleryActivity extends Activity implements GalleryContext 
         } finally {
             mGLRootView.unlockRenderThread();
         }
-        doUnbindBatchService();
     }
 
     @Override
@@ -263,13 +175,6 @@ public class AbstractGalleryActivity extends Activity implements GalleryContext 
         } finally {
             root.unlockRenderThread();
         }
-    }
-
-    public GalleryActionBar getGalleryActionBar() {
-        if (mActionBar == null) {
-            mActionBar = new GalleryActionBar(this);
-        }
-        return mActionBar;
     }
 
     @Override
@@ -303,66 +208,8 @@ public class AbstractGalleryActivity extends Activity implements GalleryContext 
         return mTransitionStore;
     }
 
-    public PanoramaViewHelper getPanoramaViewHelper() {
-        return mPanoramaViewHelper;
-    }
-
     protected boolean isFullscreen() {
         return (getWindow().getAttributes().flags
                 & WindowManager.LayoutParams.FLAG_FULLSCREEN) != 0;
-    }
-
-    private BatchService mBatchService;
-    private boolean mBatchServiceIsBound = false;
-    private ServiceConnection mBatchServiceConnection = new ServiceConnection() {
-        @Override
-        public void onServiceConnected(ComponentName className, IBinder service) {
-            mBatchService = ((BatchService.LocalBinder)service).getService();
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName className) {
-            mBatchService = null;
-        }
-    };
-
-    private void doBindBatchService() {
-        bindService(new Intent(this, BatchService.class), mBatchServiceConnection, Context.BIND_AUTO_CREATE);
-        mBatchServiceIsBound = true;
-    }
-
-    private void doUnbindBatchService() {
-        if (mBatchServiceIsBound) {
-            // Detach our existing connection.
-            unbindService(mBatchServiceConnection);
-            mBatchServiceIsBound = false;
-        }
-    }
-
-    public ThreadPool getBatchServiceThreadPoolIfAvailable() {
-        if (mBatchServiceIsBound && mBatchService != null) {
-            return mBatchService.getThreadPool();
-        } else {
-            throw new RuntimeException("Batch service unavailable");
-        }
-    }
-
-    public void printSelectedImage(Uri uri) {
-        if (uri == null) {
-            return;
-        }
-        String path = ImageLoader.getLocalPathFromUri(this, uri);
-        if (path != null) {
-            Uri localUri = Uri.parse(path);
-            path = localUri.getLastPathSegment();
-        } else {
-            path = uri.getLastPathSegment();
-        }
-        PrintHelper printer = new PrintHelper(this);
-        try {
-            printer.printBitmap(path, uri);
-        } catch (FileNotFoundException fnfe) {
-            Log.e(TAG, "Error printing an image", fnfe);
-        }
     }
 }

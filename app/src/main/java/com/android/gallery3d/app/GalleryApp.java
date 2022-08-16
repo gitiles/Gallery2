@@ -22,7 +22,6 @@ import android.content.res.Resources;
 import android.os.Looper;
 
 import com.android.gallery3d.data.DataManager;
-import com.android.gallery3d.data.DownloadCache;
 import com.android.gallery3d.data.ImageCacheService;
 import com.android.gallery3d.util.ThreadPool;
 
@@ -30,7 +29,7 @@ public interface GalleryApp {
     public DataManager getDataManager();
 
     public ImageCacheService getImageCacheService();
-    public DownloadCache getDownloadCache();
+//    public DownloadCache getDownloadCache();
     public ThreadPool getThreadPool();
 
     public Context getAndroidContext();

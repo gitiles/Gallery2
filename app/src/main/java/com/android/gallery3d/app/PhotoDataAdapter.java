@@ -148,8 +148,6 @@ public class PhotoDataAdapter implements PhotoPage.Model {
     private int mSize = 0;
     private Path mItemPath;
     private int mCameraIndex;
-    private boolean mIsPanorama;
-    private boolean mIsStaticCamera;
     private boolean mIsActive;
     private boolean mNeedFullImage;
     private int mFocusHintDirection = FOCUS_HINT_NEXT;
@@ -170,15 +168,12 @@ public class PhotoDataAdapter implements PhotoPage.Model {
     // find the image being viewed. cameraIndex is the index of the camera
     // preview. If cameraIndex < 0, there is no camera preview.
     public PhotoDataAdapter(AbstractGalleryActivity activity, PhotoView view,
-            MediaSet mediaSet, Path itemPath, int indexHint, int cameraIndex,
-            boolean isPanorama, boolean isStaticCamera) {
+            MediaSet mediaSet, Path itemPath, int indexHint, int cameraIndex) {
         mSource = Utils.checkNotNull(mediaSet);
         mPhotoView = Utils.checkNotNull(view);
         mItemPath = Utils.checkNotNull(itemPath);
         mCurrentIndex = indexHint;
         mCameraIndex = cameraIndex;
-        mIsPanorama = isPanorama;
-        mIsStaticCamera = isStaticCamera;
         mThreadPool = activity.getThreadPool();
         mNeedFullImage = true;
 
@@ -491,16 +486,6 @@ public class PhotoDataAdapter implements PhotoPage.Model {
     @Override
     public boolean isCamera(int offset) {
         return mCurrentIndex + offset == mCameraIndex;
-    }
-
-    @Override
-    public boolean isPanorama(int offset) {
-        return isCamera(offset) && mIsPanorama;
-    }
-
-    @Override
-    public boolean isStaticCamera(int offset) {
-        return isCamera(offset) && mIsStaticCamera;
     }
 
     @Override

@@ -79,23 +79,23 @@ public abstract class LocalMediaItem extends MediaItem {
         }
     }
 
-    @Override
-    public MediaDetails getDetails() {
-        MediaDetails details = super.getDetails();
-        details.addDetail(MediaDetails.INDEX_PATH, filePath);
-        details.addDetail(MediaDetails.INDEX_TITLE, caption);
-        DateFormat formater = DateFormat.getDateTimeInstance();
-        details.addDetail(MediaDetails.INDEX_DATETIME,
-                formater.format(new Date(dateModifiedInSec * 1000)));
-        details.addDetail(MediaDetails.INDEX_WIDTH, width);
-        details.addDetail(MediaDetails.INDEX_HEIGHT, height);
-
-        if (GalleryUtils.isValidLocation(latitude, longitude)) {
-            details.addDetail(MediaDetails.INDEX_LOCATION, new double[] {latitude, longitude});
-        }
-        if (fileSize > 0) details.addDetail(MediaDetails.INDEX_SIZE, fileSize);
-        return details;
-    }
+//    @Override
+//    public MediaDetails getDetails() {
+//        MediaDetails details = super.getDetails();
+//        details.addDetail(MediaDetails.INDEX_PATH, filePath);
+//        details.addDetail(MediaDetails.INDEX_TITLE, caption);
+//        DateFormat formater = DateFormat.getDateTimeInstance();
+//        details.addDetail(MediaDetails.INDEX_DATETIME,
+//                formater.format(new Date(dateModifiedInSec * 1000)));
+//        details.addDetail(MediaDetails.INDEX_WIDTH, width);
+//        details.addDetail(MediaDetails.INDEX_HEIGHT, height);
+//
+//        if (GalleryUtils.isValidLocation(latitude, longitude)) {
+//            details.addDetail(MediaDetails.INDEX_LOCATION, new double[] {latitude, longitude});
+//        }
+//        if (fileSize > 0) details.addDetail(MediaDetails.INDEX_SIZE, fileSize);
+//        return details;
+//    }
 
     @Override
     public String getMimeType() {
